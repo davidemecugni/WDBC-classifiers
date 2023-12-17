@@ -1,7 +1,7 @@
 """
 Uses an Ensemble network of 5 FCNN to reach a majority vote on the binary classification 
 """
-
+import time
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import torch
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     #Contains the 5 models retrieved from the file
     models = []
     #Retrieves 5 MLP generated in task 3
-    for i in range(3):
+    for i in range(5):
         m = torch.jit.load(f"model-fold-{i}.pth")
         models.append(m)
 
@@ -46,14 +46,13 @@ if __name__ == '__main__':
     X = Variable(torch.from_numpy(np.array(X).astype('float32')))
     y = Variable(torch.from_numpy(np.array(y).astype('float32')))
     #Contains the prediction made by the single network
+    t1 = time.time()
     y_pred = []
     for model in models : 
         model.eval()
         pred = model(X)
         pred = (pred > 0.5).float().view(-1,1)
         y_pred.append(pred)
-
-
 
     final_prediction = [GetGroupOpinion(i) for i in range(len(y))] 
     final_prediction = Variable(torch.from_numpy(np.array(final_prediction).astype('float32')))
@@ -85,6 +84,8 @@ if __name__ == '__main__':
     precision = round(tp / (tp+fp), DECIMALS)
     recall = round(tp / (tp+fn), DECIMALS)
     f1 = round(2 * (precision*recall) / (precision+ recall),DECIMALS)
+    print(f"Time for classification: {time.time()-t1}")
+    print("Ensemble network metrics")
     print(f'Accuracy on test set: {accuracy*100}%')
     print(f'Precision on test set: {precision*100}%')
     print(f'Recall on test set: {recall*100}%')
