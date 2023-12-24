@@ -1,4 +1,6 @@
 # Binary classifier for WDBC dataset
+Classify instances in the WDBC dataset using a Kfold classifier and a MultiLayerPerceptron.
+All the results and graphs are present in the .pdf file.
 
 # Task 1
 Retrieve the dataset from wdbc.data and build reduced datasets of features 5,10,15,20 using PCA.
