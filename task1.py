@@ -17,14 +17,17 @@ def GetDataset(split_train_test = False, seed=314):
         y_training, y_test = [],[] 
         for i in range(len_data):
             to_float = [float(x) for x in data[i][2:]]
+            #Pseudo-random puti n test
             if i in random_placement:
                 X_test.append(to_float)
                 y_test.append(classify[data[i][1]])
+            #Put in training
             else:
                 X_training.append(to_float)
                 y_training.append(classify[data[i][1]])
         return X_training,y_training,X_test,y_test
     else:
+        #Returns the entire dataset
         X,y = [],[]
         for i in range(len_data):
             to_float = [float(x) for x in data[i][2:]]
@@ -35,6 +38,7 @@ def GetDataset(split_train_test = False, seed=314):
 def MultiplePCA(X, dimentions, X_test = None):
     """Returns a dict nr_of_dim:reduced_dataset"""
     d = {}
+    #Does reduction for each size in dimentions
     for n_of_elements in dimentions:
         pca = PCA(n_components=n_of_elements)
         X_red = pca.fit_transform(X)

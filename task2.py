@@ -31,9 +31,7 @@ def ResultValues(dim, metric, folds_results):
     l = []
     for i in range(5):
         l.append([v[metric] for v in folds_results[i][dim].values()])
-    print(l)
     l = np.mean(l, axis=0 )
-    print(l)
     return l
 
 def GraphSingleData(metric,folds_results):
@@ -63,9 +61,7 @@ def TabData(folds_results):
         tab_data = [header]
         for m in metrics:
             r = ResultValues(d, m,folds_results)
-            print(r)
             r = r[::2]
-            print(r)
             x = [round(i,4) for i in r]
             x.insert(0, m)
             tab_data.append(x)
@@ -76,6 +72,7 @@ def TabData(folds_results):
         ax.set_yticks([])
         pl.title(f"Statistics for {d} dimentions")
         plt.show()
+
 def GraphData(folds_results):
     """
     Graphs all the metrics
@@ -84,15 +81,18 @@ def GraphData(folds_results):
     GraphSingleData("precision",folds_results)
     GraphSingleData("recall",folds_results)
     GraphSingleData("f1",folds_results)
+
 if __name__ == "__main__":
-    #Get data
+    #Gets data
     folds_results = []
     for fold in range(5):
         t1 = time.time()
         X_training, y_training, X_test, y_test = GetDataset(split_train_test=True, seed= fold)
+        #Scales the data
         scaler = StandardScaler()   
         X_training = scaler.fit_transform(X_training)
         X_test = scaler.transform(X_test)
+        #Defines dimentions and number of neighbours
         dim = [5,10,15,20]
         k = [1,2,3,4,5,6,7,8,9]
         #Reduced dataset
@@ -107,9 +107,10 @@ if __name__ == "__main__":
 
         #Add full dimention KNN analysis
         results[30] = MultipleKNN(X_training, y_training, X_test, y_test,k)
-        print(f"Total time: {time.time()-t1}")
         dim.append(30)
         folds_results.append(results)
+    #Prints total time needed for reduction and KNN 
+    print(f"Total time: {time.time()-t1}")
 
     #Creates all the graphs for the report
     GraphData(folds_results)

@@ -17,6 +17,9 @@ def ResetWeights(model):
             layer.reset_parameters()
 
 class Net(nn.Module):
+    """
+    Defines the network
+    """
     def __init__(self):
         super(Net, self).__init__()
         self.l1 = 100
@@ -35,6 +38,7 @@ class Net(nn.Module):
             nn.Dropout(p=0.50),
             nn.Sigmoid(),
         )
+
     def forward(self, x):
         return self.layers(x)
 
@@ -46,7 +50,9 @@ LR = 0.5
 DECIMALS = 3
 
 if __name__ == '__main__':
+    #Gets the dataset from task 1
     X, y = GetDataset(False)
+    #Normalizes the dataset
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
     X = Variable(torch.from_numpy(np.array(X).astype('float32')))
@@ -58,14 +64,13 @@ if __name__ == '__main__':
     torch.manual_seed(42)
     np.random.seed(42)
     times = []
-    # Define the K-fold Cross Validator
+    # Define the K-fold Cross Validator, fixed seed for repeatability
     kfold = KFold(n_splits=K_FOLDS, shuffle=True, random_state=42)
 
     for fold, (train_ids, test_ids) in enumerate(kfold.split(dataset)):
         t1 = time.time()
         # Print
         print(f'FOLD {fold}')
-        print(f"Training size:{len(train_ids)}, Test size:{len(test_ids)}")
         print('--------------------------------')
         # Sample elements randomly from a given list of ids, no replacement.
         train_subsampler = torch.utils.data.SubsetRandomSampler(train_ids)
@@ -115,7 +120,7 @@ if __name__ == '__main__':
         # Print about testing
         print('Starting testing')
 
-        # Saving the model
+        # Saving the models
         save_path = f'./model-fold-{fold}.pth'
         model_scripted = torch.jit.script(model) # Export to TorchScript
         model_scripted.save(save_path) # Save
@@ -128,6 +133,7 @@ if __name__ == '__main__':
             tn = 0.
             fp = 0.
             fn = 0.
+            #Metrics on test
             for i, data in enumerate(testloader, 0):
                 # Get inputs
                 inputs, targets = data
@@ -155,9 +161,9 @@ if __name__ == '__main__':
                         else:
                             tn += 1.
                             
-            total_samples = tp+tn+fp+fn
             accuracy = round((tp+tn)/(tp+tn+fp+fn), DECIMALS)
             precision = 0.
+            #If the model doesn't label any instance as positive
             if tp+fp != 0:
                 precision = round(tp / (tp+fp), DECIMALS)
             recall = 0.
@@ -177,8 +183,7 @@ if __name__ == '__main__':
             print(f"{a}% {p}% {r}% {f1}%")
             results[fold] =  {'a': a, 'p' : p, 'r' : r, 'f1' : f1}
     
-    
-    #Average time 10.51s
+
     print(f"\n\nAverage training time {np.average(times)}\n")
 
 
